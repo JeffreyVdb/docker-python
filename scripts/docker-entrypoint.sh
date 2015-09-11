@@ -11,10 +11,11 @@ Usage: docker run <imagename> COMMAND
 
 Commands
 
-bash    : Start a bash shell
-tox     : Run the Tox tests. Requires 'TOXFILEDIR' and tox to be installed
-python  : Run a Python shell
-help    : Show this message
+bash        : Start a bash shell
+tox         : Run the Tox tests. Requires 'TOXFILEDIR' and tox to be installed
+python      : Run a classic python shell
+ptpython    : Run a ptpython shell
+help        : Show this message
 """
 }
 
@@ -29,6 +30,9 @@ case "$1" in
     ;;
     python)
         run_python "${@:2}"
+    ;;
+    ptpython)
+        run_ptpython "${@:2}"
     ;;
     help)
         show_help

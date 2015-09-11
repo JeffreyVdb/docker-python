@@ -58,5 +58,10 @@ run_tox(){
 
 # Run python
 run_python(){
+    python "$@"
+}
+
+# Run ptpython
+run_ptpython(){
     ptipython "$@"
 }

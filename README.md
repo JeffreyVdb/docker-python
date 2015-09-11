@@ -61,7 +61,10 @@ TOXFILEDIR | No | Specify name of directory where the `tox.ini` file exists if i
     BUILDDEPSFILE | No | Provide name of `builddeps.txt` if it differs from `builddeps.txt`
 
 #### python
-Start a Python shell
+Start a classic Python shell
+
+#### ptpython
+Start a PTPython shell
 
 #### help
 Show a help message
