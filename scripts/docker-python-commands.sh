@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Install build dependencies
 install_build_deps(){
@@ -32,7 +32,7 @@ uninstall_build_deps(){
 
 # Run bash
 run_bash(){
-    /bin/bash "${@:2}"
+    /usr/bin/env bash "$@"
 }
 
 # Run tox
@@ -45,7 +45,7 @@ run_tox(){
 
         echo "Running Tox Tests..."
         cd ${TOXFILEDIR} \
-            && tox "${@:2}"
+            && tox "$@"
 
         trap - EXIT
         uninstall_build_deps
@@ -58,5 +58,5 @@ run_tox(){
 
 # Run python
 run_python(){
-    ptipython "${@:2}"
+    ptipython "$@"
 }

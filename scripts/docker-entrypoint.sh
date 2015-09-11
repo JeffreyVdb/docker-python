@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 # Include
@@ -22,13 +22,13 @@ help    : Show this message
 # Run
 case "$1" in
     bash)
-        run_bash
+        run_bash "${@:2}"
     ;;
     tox)
-        run_tox
+        run_tox "${@:2}"
     ;;
     python)
-        run_python
+        run_python "${@:2}"
     ;;
     help)
         show_help
