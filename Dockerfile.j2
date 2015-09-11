@@ -38,7 +38,6 @@ ENV PYTHONUNBUFFERED=1 \
     SRCDIR=${ROOT}/src \
     TOXFILEDIR=${ROOT}/src \
     DEPLOYMENTDIR=${ROOT}/deployment \
-    RUNDIR=${ROOT}/run \
     SCRIPTSSRC=./scripts \
     SCRIPTSDIR=${ROOT}/scripts \
     BUILDDEPSFILE=builddeps.txt \
@@ -50,7 +49,6 @@ ENV PYTHONPATH $PIPSRC:$SRCDIR:$PYTHONPATH
 RUN mkdir -p ${SRCDIR} && \
     mkdir -p ${DEPLOYMENTDIR} && \
     mkdir -p ${SCRIPTSDIR} && \
-    mkdir -p ${RUNDIR} && \
     mkdir -p /root/.ptpython
 
 RUN chown -R www-data ${ROOT}
