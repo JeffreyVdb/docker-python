@@ -1,0 +1,71 @@
+FROM python:{{ pythonversion }}
+MAINTAINER technology@vikingco.com
+
+# install and configure packages
+RUN set -x \
+	&& buildDeps=' \
+		curl \
+		libbz2-dev \
+		libncurses-dev \
+		libsqlite3-dev \
+		make \
+		xz-utils \
+        gcc \
+	' \
+	&& requiredAptPackages=' \
+        git-core \
+	' \
+	&& requiredPipPackages=' \
+        ipython \
+        ptpython \
+	' \
+	&& apt-get update \
+	&& apt-get install -y $requiredAptPackages $buildDeps \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --upgrade pip \
+    && pip install $requiredPipPackages \
+    && find /usr/local \
+		\( -type d -a -name test -o -name tests \) \
+		-o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
+		-exec rm -rf '{}' + \
+	&& apt-get purge -y --auto-remove $buildDeps
+
+# Define env variables
+ENV ROOT=/data
+ENV PYTHONUNBUFFERED=1 \
+    CONFSRC=./conf \
+    CONFDIR=${ROOT}/conf \
+    SRCDIR=${ROOT}/src \
+    TOXFILEDIR=${ROOT}/src \
+    DEPLOYMENTDIR=${ROOT}/deployment \
+    RUNDIR=${ROOT}/run \
+    SCRIPTSSRC=./scripts \
+    SCRIPTSDIR=${ROOT}/scripts \
+    BUILDDEPSFILE=builddeps.txt \
+    DEPSFILE=deps.txt \
+    PIPSRC=/pip
+ENV PYTHONPATH $PIPSRC:$SRCDIR:$PYTHONPATH
+
+# make directories
+RUN mkdir -p ${SRCDIR} && \
+    mkdir -p ${DEPLOYMENTDIR} && \
+    mkdir -p ${SCRIPTSDIR} && \
+    mkdir -p ${RUNDIR} && \
+    mkdir -p /root/.ptpython
+
+RUN chown -R www-data ${ROOT}
+
+COPY ${CONFSRC} ${CONFDIR}
+COPY ${SCRIPTSSRC} ${SCRIPTSDIR}
+
+RUN ln -s ${CONFDIR}/pip.conf /etc/pip.conf
+
+# set workdir
+WORKDIR ${SRCDIR}
+
+# make symlink for run script
+RUN ln -s ${SCRIPTSDIR}/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
+# set run command
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["help"]
