@@ -1,6 +1,9 @@
 machine:
     services:
         - docker
+test:
+    override:
+        - make build
 deployment:
     docker-hub:
         branch: master
