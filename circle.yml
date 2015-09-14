@@ -1,0 +1,8 @@
+machine:
+    services:
+        - docker
+deployment:
+    docker-hub:
+        branch: master
+        commands:
+            - make
