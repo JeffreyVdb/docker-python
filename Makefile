@@ -1,17 +1,17 @@
 ROOTDIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-python_version = $(shell echo $@ | sed "s/[^-]*-python\(.*\)/\1/")
+parse_python_version = $(shell echo $@ | sed "s/[^-]*-python-\(.*\)/\1/")
 
 all: build push
 
-push: push-python2.7 push-python3.4
+push: push-python-2.7.10 push-python-3.4.3
 
-build: build-python2.7 build-python3.4
+build: build-python-2.7.10 build-python-3.4.3
 
-build-%: PYTHON_VERSION=$(python_version)
+build-%: PYTHON_VERSION=$(parse_python_version)
 build-%:
 	@echo "\
-pythonversion: $(PYTHON_VERSION)-slim\n\
+pythonversions: $(PYTHON_VERSION)\n\
 " > data$(PYTHON_VERSION).yml
 	docker run \
 		-v $(ROOTDIR)/Dockerfile.j2:/data/Dockerfile.j2 \
@@ -21,6 +21,6 @@ pythonversion: $(PYTHON_VERSION)-slim\n\
 	@rm data$(PYTHON_VERSION).yml
 	@rm Dockerfile
 
-push-%: PYTHON_VERSION=$(python_version)
+push-%: PYTHON_VERSION=$(parse_python_version)
 push-%:
 	docker push vikingco/python:$(PYTHON_VERSION)

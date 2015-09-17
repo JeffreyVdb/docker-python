@@ -1,33 +1,47 @@
-FROM python:{{ pythonversion }}
+FROM debian:jessie
 MAINTAINER technology@vikingco.com
 
-# install and configure packages
+# Prepare pyenv
+ENV PYENV_ROOT $HOME/.pyenv
+ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+ENV PYTHON_VERSIONS {{ pythonversions }}
+
+# Install base requirements
 RUN set -x \
-	&& buildDeps=' \
-		curl \
-		libbz2-dev \
-		libncurses-dev \
-		libsqlite3-dev \
-		make \
-		xz-utils \
-        gcc \
-	' \
-	&& requiredAptPackages=' \
+    && buildDeps=' \
+        ca-certificates \
+        make \
+        build-essential \
+        libssl-dev \
+        zlib1g-dev \
+        libbz2-dev \
+        libreadline-dev \
+        libsqlite3-dev \
+        wget \
+        curl \
+        llvm \
+        libncurses5-dev \
         git-core \
-	' \
-	&& requiredPipPackages=' \
+    ' \
+    && requiredPipPackages=' \
         ipython \
         ptpython \
 	' \
-	&& apt-get update \
-	&& apt-get install -y $requiredAptPackages $buildDeps \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip install --upgrade pip \
-    && pip install $requiredPipPackages \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends $buildDeps \
+    && git clone git://github.com/yyuu/pyenv.git .pyenv \
+    && for pyversion in ${PYTHON_VERSIONS}; \
+        do \
+            pyenv install ${pyversion} \
+            && pyenv local ${pyversion} \
+            && pip install ${requiredPipPackages}; \
+        done \
+    && pyenv global ${PYTHON_VERSIONS} \
     && find /usr/local \
 		\( -type d -a -name test -o -name tests \) \
 		-o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
 		-exec rm -rf '{}' + \
+    && rm -rf /tmp/python-build* \
 	&& apt-get purge -y --auto-remove $buildDeps
 
 # Define env variables
