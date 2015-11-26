@@ -5,9 +5,9 @@ ALL_PYTHON_VERSIONS = pypy-2.4.0 2.6.9 2.7.10 3.3.6 3.4.3 3.5.0
 
 all: build push
 
-push: push-python-2.7.10 push-python-3.4.3 push-python-all
+push: push-python-pypy-2.4.0 push-python-2.7.10 push-python-3.4.3 push-python-all
 
-build: build-python-2.7.10 build-python-3.4.3 build-python-all
+build: build-python-pypy-2.4.0 build-python-2.7.10 build-python-3.4.3 build-python-all
 
 build-python-all:
 	@echo "\
