@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Run make
+run_make(){
+    make "$@"
+}
+
 # Install build dependencies
 install_build_deps(){
     if [ -f ${DEPLOYMENTDIR}/builddeps.txt ];

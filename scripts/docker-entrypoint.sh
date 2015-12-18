@@ -11,6 +11,7 @@ Usage: docker run <imagename> COMMAND
 
 Commands
 
+make        : Call make command
 bash        : Start a bash shell
 tox         : Run the Tox tests. Requires 'TOXFILEDIR' and tox to be installed
 python      : Run a classic python shell
@@ -22,6 +23,9 @@ help        : Show this message
 
 # Run
 case "$1" in
+    make)
+        run_make "${@:2}"
+    ;;
     bash)
         run_bash "${@:2}"
     ;;
