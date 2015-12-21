@@ -29,7 +29,7 @@ RUN set -x \
 	' \
     && apt-get update \
     && apt-get install -y --no-install-recommends $buildDeps \
-    && git clone git://github.com/yyuu/pyenv.git .pyenv \
+    && git clone https://github.com/yyuu/pyenv.git .pyenv \
     && for pyversion in ${PYTHON_VERSIONS}; \
         do \
             pyenv install ${pyversion} \
