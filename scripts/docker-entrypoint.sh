@@ -2,7 +2,7 @@
 set -e
 
 # Include
-source "${SCRIPTSDIR}/docker-python-commands.sh"
+source "./docker-python-commands.sh"
 
 # Define help message
 show_help() {
@@ -11,12 +11,13 @@ Usage: docker run <imagename> COMMAND
 
 Commands
 
-make        : Call make command
-bash        : Start a bash shell
-tox         : Run the Tox tests. Requires 'TOXFILEDIR' and tox to be installed
-python      : Run a classic python shell
-ptpython    : Run a ptpython shell
-help        : Show this message
+make         : Call make command
+bash         : Start a bash shell
+tox          : Run the Tox tests. Requires 'TOXFILEDIR' and tox to be installed
+python       : Run a classic python shell
+ptpython     : Run a ptpython shell
+apt          : Manage apt dependencies
+help         : Show this message
 """
 }
 
@@ -37,6 +38,9 @@ case "$1" in
     ;;
     ptpython)
         run_ptpython "${@:2}"
+    ;;
+    apt)
+        deps "${@:2}"
     ;;
     help)
         show_help
