@@ -11,7 +11,7 @@ build: build-python-pypy-2.4.0 build-python-2.7.10 build-python-3.4.3 build-pyth
 
 build-python-all:
 	@echo "\
-pythonversions: $(ALL_PYTHON_VERSIONS)\n\
+pythonversions: $(ALL_PYTHON_VERSIONS)\
 " > data-all.yml
 	docker run \
 		-v $(ROOTDIR)/Dockerfile.j2:/data/Dockerfile.j2 \
@@ -27,7 +27,7 @@ push-python-all:
 build-%: PYTHON_VERSION=$(parse_python_version)
 build-%:
 	@echo "\
-pythonversions: $(PYTHON_VERSION)\n\
+pythonversions: $(PYTHON_VERSION)\
 " > data$(PYTHON_VERSION).yml
 	docker run \
 		-v $(ROOTDIR)/Dockerfile.j2:/data/Dockerfile.j2 \
