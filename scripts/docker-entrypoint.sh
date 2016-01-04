@@ -2,7 +2,7 @@
 set -e
 
 # Include
-source "./docker-python-commands.sh"
+source "${SCRIPTSDIR}/docker-python-commands.sh"
 
 # Define help message
 show_help() {

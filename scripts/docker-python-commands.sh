@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Include
-source "./docker-dependencies-commands.sh"
+source "${SCRIPTSDIR}/docker-dependencies-commands.sh"
 
 # Run make
 run_make(){
