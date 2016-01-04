@@ -12,9 +12,9 @@ RUN set -x \
         ca-certificates \
         make \
         build-essential \
-        libssl-dev \
         zlib1g-dev \
         libbz2-dev \
+        libssl-dev \
         libreadline-dev \
         libsqlite3-dev \
         wget \
@@ -23,12 +23,16 @@ RUN set -x \
         libncurses5-dev \
         git-core \
     ' \
+    && deps=' \
+        openssl \
+    ' \
     && requiredPipPackages=' \
         ipython \
         ptpython \
+        tabulate \
 	' \
     && apt-get update \
-    && apt-get install -y --no-install-recommends $buildDeps \
+    && apt-get install -y --no-install-recommends $deps $buildDeps \
     && git clone https://github.com/yyuu/pyenv.git .pyenv \
     && for pyversion in ${PYTHON_VERSIONS}; \
         do \
@@ -69,15 +73,13 @@ RUN chown -R www-data ${ROOT}
 
 COPY ${CONFSRC} ${CONFDIR}
 COPY ${SCRIPTSSRC} ${SCRIPTSDIR}
+COPY docker-entrypoint.py /usr/local/bin/docker-entrypoint.py
 
 RUN ln -s ${CONFDIR}/pip.conf /etc/pip.conf
 
 # set workdir
 WORKDIR ${SRCDIR}
 
-# make symlink for run script
-RUN ln -s ${SCRIPTSDIR}/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-
 # set run command
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["docker-entrypoint.py"]
 CMD ["help"]
