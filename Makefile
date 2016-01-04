@@ -29,7 +29,7 @@ build-%:
 	@echo "\
 pythonversions: $(PYTHON_VERSION)\
 " > data$(PYTHON_VERSION).yml
-	docker run \
+	docker run --rm \
 		-v $(ROOTDIR)/Dockerfile.j2:/data/Dockerfile.j2 \
 		-v $(ROOTDIR)/data$(PYTHON_VERSION).yml:/data/data.yml \
 		sgillis/jinja2cli Dockerfile.j2 data.yml > Dockerfile
