@@ -101,7 +101,6 @@ def run(args, path=None, cmdpath=None):
 
     # Check for 'help'
     if arg == HELPKEY:
-        cmdpath.append(HELPKEY)
         return help(path, cmdpath=cmdpath)
     elif os.path.isdir(os.path.join(path, arg)):
         cmdpath.append(arg)
