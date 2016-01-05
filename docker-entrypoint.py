@@ -5,7 +5,6 @@ from tabulate import tabulate
 
 import os
 import sys
-import json
 import subprocess
 
 SCRIPTSDIR = os.getenv('SCRIPTSDIR', './scripts')
@@ -25,8 +24,7 @@ def get_caption(path, name):
     if name and os.path.exists(captionfile):
         with open(captionfile, 'rb') as fh:
             result = fh.readline()  # Only take first line!
-
-    return result.strip()
+    return result.strip() if result else ''
 
 
 def assert_no_reserved_name(name):
@@ -114,10 +112,10 @@ def run(args, path=None, cmdpath=None):
         return help(path, cmdpath=cmdpath)
 
     if os.path.isfile(os.path.join(path, scriptfile)):
-        command = '%s %s' % (os.path.join(path, scriptfile), ' '.join(args[1:]))
-        p = subprocess.Popen(command, shell=True)
-        p.communicate()
-        exit(p.returncode)
+        command = [os.path.abspath(os.path.join(path, scriptfile))]
+        command.extend(args[1:])
+        returncode = subprocess.call(command)
+        exit(returncode)
 
 
 if __name__ == '__main__':

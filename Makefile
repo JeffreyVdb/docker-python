@@ -16,7 +16,7 @@ pythonversions: $(ALL_PYTHON_VERSIONS)\
 	docker run \
 		-v $(ROOTDIR)/Dockerfile.j2:/data/Dockerfile.j2 \
 		-v $(ROOTDIR)/data-all.yml:/data/data.yml \
-		sgillis/jinja2cli Dockerfile.j2 data.yml > Dockerfile
+		vikingco/jinja2cli Dockerfile.j2 data.yml > Dockerfile
 	docker build -t vikingco/python:all .
 	@rm data-all.yml
 	@rm Dockerfile
@@ -32,7 +32,7 @@ pythonversions: $(PYTHON_VERSION)\
 	docker run --rm \
 		-v $(ROOTDIR)/Dockerfile.j2:/data/Dockerfile.j2 \
 		-v $(ROOTDIR)/data$(PYTHON_VERSION).yml:/data/data.yml \
-		sgillis/jinja2cli Dockerfile.j2 data.yml > Dockerfile
+		vikingco/jinja2cli Dockerfile.j2 data.yml > Dockerfile
 	docker build -t vikingco/python:$(PYTHON_VERSION) .
 	@rm data$(PYTHON_VERSION).yml
 	@rm Dockerfile
