@@ -73,7 +73,7 @@ RUN chown -R www-data ${ROOT}
 
 COPY ${CONFSRC} ${CONFDIR}
 COPY ${SCRIPTSSRC} ${SCRIPTSDIR}
-COPY docker-entrypoint.py /usr/local/bin/docker-entrypoint.py
+COPY docker-entrypoint.py /usr/local/bin/runscript
 
 RUN ln -s ${CONFDIR}/pip.conf /etc/pip.conf
 
@@ -81,5 +81,5 @@ RUN ln -s ${CONFDIR}/pip.conf /etc/pip.conf
 WORKDIR ${SRCDIR}
 
 # set run command
-ENTRYPOINT ["docker-entrypoint.py"]
+ENTRYPOINT ["runscript"]
 CMD ["help"]
