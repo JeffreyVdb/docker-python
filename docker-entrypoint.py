@@ -1,11 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
+
+import sys
+import os
+import pwd
+
+import subprocess
+
+
+def get_username():
+    return pwd.getpwuid( os.getuid() )[ 0 ]
+
+# print('UID: %s' % os.getuid())
+# print('Current User: %s' % get_username())
+
 from tabulate import tabulate
 
-import os
-import sys
-import subprocess
 
 SCRIPTSDIR = os.getenv('SCRIPTSDIR', './scripts')
 HELPKEY = 'help'
@@ -87,6 +98,10 @@ def help(path, cmdpath):
     _p(tabulate(descriptions, headers))
 
 
+def run_command(command):
+    return subprocess.call(command, env=os.environ.copy())
+
+
 def run(args, path=None, cmdpath=None):
     # Current path
     path = path or SCRIPTSDIR
@@ -114,7 +129,7 @@ def run(args, path=None, cmdpath=None):
     if os.path.isfile(os.path.join(path, scriptfile)):
         command = [os.path.abspath(os.path.join(path, scriptfile))]
         command.extend(args[1:])
-        returncode = subprocess.call(command)
+        returncode = run_command(command)
         exit(returncode)
 
 
