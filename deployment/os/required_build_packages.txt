@@ -1,0 +1,10 @@
+gcc
+zlib-devel
+bzip2-devel
+readline-devel
+sqlite-devel
+openssl-devel
+patch
+wget
+tar
+git-core

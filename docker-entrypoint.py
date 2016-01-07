@@ -18,7 +18,7 @@ def get_username():
 from tabulate import tabulate
 
 
-SCRIPTSDIR = os.getenv('SCRIPTSDIR', './scripts')
+SCRIPTSDIR = os.getenv('SCRIPTS_DIR', './scripts')
 HELPKEY = 'help'
 COMMANDPREFIX = 'docker run [OPTIONS] IMAGE'
 RESERVEDNAMES = []
