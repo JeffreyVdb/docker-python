@@ -10,7 +10,7 @@ push: push-python-pypy-2.4.0 push-python-2.7.10 push-python-3.4.3 push-python-al
 build: build-python-pypy-2.4.0 build-python-2.7.10 build-python-3.4.3 build-python-all
 
 build-python-all:
-	docker build -t vikingco/python:all --build-arg PYTHON_VERSIONS=$(ALL_PYTHON_VERSIONS) .
+	docker build -t vikingco/python:all --build-arg PYTHON_VERSIONS="$(ALL_PYTHON_VERSIONS)" .
 
 push-python-all:
 	docker push vikingco/python:all

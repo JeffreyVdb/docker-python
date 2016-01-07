@@ -11,24 +11,6 @@ ENV ROOT=/data
 ####################################
 ARG PYTHON_VERSIONS=2.7.5
 
-######################
-# Setup default user #
-######################
-ARG UID=1000
-ARG GID=1000
-ARG USERNAME=python
-RUN set -e \
-    && yum install -y sudo \
-	&& yum clean all \
-    && echo "Defaults:${USERNAME}    !env_reset" >> /etc/sudoers \
-    && echo "Defaults:${USERNAME}    !requiretty" >> /etc/sudoers \
-    && echo "${USERNAME}    ALL=(ALL)    NOPASSWD:ALL" >> /etc/sudoers \
-    && groupadd -g ${GID} ${USERNAME} \
-    && useradd -u ${UID} -g ${GID} -s /bin/bash ${USERNAME} \
-    && mkdir -p ${ROOT} \
-    && chown -R ${UID}:${GID} ${ROOT}
-USER ${USERNAME}
-
 ##################################
 # Define global environment vars #
 ##################################
@@ -49,6 +31,25 @@ ENV PYTHONUNBUFFERED=1 \
 # Define PATH #
 ###############
 ENV PATH ${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:$PATH
+
+######################
+# Setup default user #
+######################
+ARG UID=1000
+ARG GID=1000
+ARG USERNAME=python
+RUN set -e \
+    && yum install -y sudo \
+	&& yum clean all \
+    && echo "Defaults:${USERNAME}    !env_reset" >> /etc/sudoers \
+    && echo "Defaults:${USERNAME}    !requiretty" >> /etc/sudoers \
+    && echo "Defaults:${USERNAME}    secure_path=\"$PATH\"" >> /etc/sudoers \
+    && echo "${USERNAME}    ALL=(ALL)    NOPASSWD:ALL" >> /etc/sudoers \
+    && groupadd -g ${GID} ${USERNAME} \
+    && useradd -u ${UID} -g ${GID} -s /bin/bash ${USERNAME} \
+    && mkdir -p ${ROOT} \
+    && chown -R ${UID}:${GID} ${ROOT}
+USER ${USERNAME}
 
 ##############################
 # Copy deployment into image #
@@ -80,8 +81,8 @@ RUN set -x \
 		-o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
 		-exec rm -rf '{}' + \
     && sudo rm -rf /tmp/* \
-	&& sudo yum remove -y ${buildPackages} \
-	&& sudo yum clean all
+    && sudo yum remove -y ${buildPackages} \
+    && sudo yum clean all
 
 ###########################
 # Create source directory #
@@ -96,7 +97,7 @@ COPY ${SCRIPTS_SRC} ${SCRIPTS_DIR}
 ##############################
 # Copy entrypoint into image #
 ##############################
-COPY docker-entrypoint.py /usr/local/bin/runscript
+COPY docker-entrypoint.py /usr/bin/runscript
 
 #######################
 # Set default workdir #
