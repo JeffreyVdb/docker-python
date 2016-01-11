@@ -1,0 +1,1 @@
+Update the user. (Usage: user set <USERNAME> <NEW_UID> <NEW_GID> [<NEW_USERNAME>])
