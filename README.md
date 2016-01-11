@@ -5,18 +5,44 @@ Base image for creating a Docker image running a Python application
 This builds multiple versions of the image that are tagged based on the Python
 version used.
 
-## Usage
+
+## Building
+This image uses [pyenv](https://github.com/yyuu/pyenv) to be able to install specific python versions into the container.
+
+### Single python version
+This will install a single python version as the main python version.
+
+Usage:
+```bash
+export PYVERSION="2.7.5"
+docker build -t vikingco/python:${PYVERSION} \
+    --build_arg PYTHON_VERSIONS=${PYVERSION} \
+    .
+```
+
+### Multiple python versions
+This will install multiple python versions and allows the user to switch using pyenv commands (e.g. pyenv local 2.7.10).
+
+Usage:
+```bash
+export PYVERSIONS="2.7.5 2.7.10"
+docker build -t vikingco/python:multiple \
+    --build_arg PYTHON_VERSIONS=${PYVERSIONS} \
+    .
+```
+
+
+## Using as base image
 
 This image is mainly used to simplify a number of tasks that are common across
 Python projects:
  - Wrapper for various commonly called commands
- - Testing with tox
 
 To start using the image, just inherit from it in your project's Dockerfile:
 
-    FROM vikingco/python:3.4
+    FROM vikingco/python:2.7.5
 
-This will give you `python`, `pip` `ipython`, `ptpython` and `git-core`.
+This will give you `python`, `pip` `ipython` and `ptpython`.
 Everything else you will need to install yourself by adding extra `RUN`
 commands to your project's Dockerfile.
 
@@ -27,44 +53,73 @@ You will probably still need the following lines
     COPY . ${SRCDIR}
 
 
-### docker-entrypoint.sh
+## docker-entrypoint.py
 
 This is the main entrypoint of the image. It is built to comply with the [best
 practices](https://docs.docker.com/articles/dockerfile_best-practices/#entrypoint).
-`docker-entrypoint.sh` takes a command as argument, which are listed below. Some of them are configurable by environment variables.
+`docker-entrypoint.py` takes a command as argument, which are listed below. Some of them are configurable by environment variables.
 
-#### bash
-Starts a bash shell
+### Root commands
+Used to start different shells.
 
-#### tox
-Runs tox tests
+Usage:
+```bash
+docker run -ti vikingco/python:<VERSION> [COMMAND] [ARG...]
+```
 
-Env variable | Required | Description
---- | --- | ---
-TOXFILEDIR | No | Specify name of directory where the `tox.ini` file exists if it differs from `./`
+| Command  | Description                               |
+| -------: | ----------------------------------------- |
+| bash     | Starts a bash shell                       |
+| python   | Start a classic Python shell              |
+| ptpython | Start a PTPython shell                    |
+| tox      | Run tox (Make sure it is installed first) |
+| help     | Show a help message                       |
 
-##### advanced topics
+### Package commands
+Used to manage yum package installation for packages defined in ${DEPLOYMENTDIR}/required_runtime_packages.txt and
+${DEPLOYMENTDIR}/required_build_packages.txt.
 
-*   build dependencies:
+Usage:
+```bash
+docker run -ti vikingco/python:<VERSION> pkg [COMMAND] [ARG...]
+```
 
-    Since running tox will create new virtual environments, in most cases it is required to have additional system
-    packages available. A straightforward example would be `libpg-dev` which is required if you are installing psycopg2.
+| Command           | Description                    |
+| ----------------: | ------------------------------ |
+| install           | Install all dependencies       |
+| install-build     | Install build dependencies     |
+| install-runtime   | Install runtime dependencies   |
+| uninstall         | Uninstall all dependencies     |
+| uninstall-build   | Uninstall build dependencies   |
+| uninstall-runtime | Uninstall runtime dependencies |
+| help              | Show a help message            |
 
-    Those 'build dependencies' can be provided via the `builddeps.txt` file, that can be added in the `deployment`
-    directory.
+### User commands
+Used to manage the user at build-time.
 
-    **WARNING: These build dependencies will be installed before running tox, and uninstalled afterwards. Make sure that
-    your application does not depend on these build dependencies directly!**
+Usage:
+```bash
+docker run -ti vikingco/python:<VERSION> user [COMMAND] [ARG...]
+```
 
-    Env variable | Required | Description
-    --- | --- | ---
-    BUILDDEPSFILE | No | Provide name of `builddeps.txt` if it differs from `builddeps.txt`
+| Command | Description                                                              |
+| ------: | ------------------------------------------------------------------------ |
+| set     | Updates the current user. (Arguments: OLD_USERNAME UID GID NEW_USERNAME) |
 
-#### python
-Start a classic Python shell
 
-#### ptpython
-Start a PTPython shell
+## Advanced topics
 
-#### help
-Show a help message
+### Building with a user that matches the host user
+The default user id and group id are both 1000, and the default username is "python". At buildtime, it is easy to
+override this:
+
+Usage (e.g. to match the container user with the local user):
+```bash
+export PYVERSION="2.7.5"
+docker build -t vikingco/python:${PYVERSION} \
+    --build_arg PYTHON_VERSIONS=${PYVERSION} \
+    --build-arg UID=$(id -u) \
+    --build-arg GID=$(id -g) \
+    --build-arg USERNAME=$(whoami) \
+    .
+```
