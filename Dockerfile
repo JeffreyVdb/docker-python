@@ -62,7 +62,6 @@ COPY ${DEPLOYMENT_SRC} ${DEPLOYMENT_DIR}
 RUN set -x \
     && buildPackages=`cat ${DEPLOYMENT_DIR}/${REQUIRED_BUILD_PACKAGES_FILE}` \
     && runtimePackages=`cat ${DEPLOYMENT_DIR}/${REQUIRED_RUNTIME_PACKAGES_FILE}` \
-    && pythonRequirements=`cat ${DEPLOYMENT_DIR}/${PYTHON_REQUIREMENTS_FILE}` \
     && sudo yum install -y ${runtimePackages} ${buildPackages} \
     && wget https://github.com/yyuu/pyenv/tarball/master -O /tmp/pyenv.tar.gz \
     && mkdir -p ${PYENV_ROOT} \
@@ -73,7 +72,7 @@ RUN set -x \
         do \
             pyenv install ${pyversion} \
             && pyenv local ${pyversion} \
-            && pip install ${pythonRequirements}; \
+            && pip install -r ${DEPLOYMENT_DIR}/${PYTHON_REQUIREMENTS_FILE}; \
         done \
     && pyenv global ${PYTHON_VERSIONS} \
     && find /usr/local \
