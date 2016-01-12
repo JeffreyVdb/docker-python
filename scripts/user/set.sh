@@ -25,7 +25,7 @@ then
     usermod -u ${NEW_UID} ${OLD_USERNAME}
 
     # Update file permissions
-    echo "Changing file permissions..."
+    echo "Changing file permissions in ${ROOT}..."
     find ${ROOT} -uid ${OLD_UID} -exec chown ${NEW_UID}:${NEW_GID} {} +
 fi
 
@@ -37,6 +37,9 @@ then
         --move-home \
         --home /home/${NEW_USERNAME} \
         ${OLD_USERNAME}
+
+    echo "Changing file permissions in /home/${NEW_USERNAME}..."
+    find /home/${NEW_USERNAME} -uid ${OLD_UID} -exec chown ${NEW_UID}:${NEW_GID} {} +
 
     # Update sudoers
     sed -i "s/$OLD_USERNAME/$NEW_USERNAME/g" /etc/sudoers
