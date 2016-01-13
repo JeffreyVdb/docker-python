@@ -75,7 +75,7 @@ RUN set -x \
             && pip install -r ${DEPLOYMENT_DIR}/${PYTHON_REQUIREMENTS_FILE}; \
         done \
     && pyenv global ${PYTHON_VERSIONS} \
-    && find /usr/local \
+    && find ${PYENV_ROOT} \
 		\( -type d -a -name test -o -name tests \) \
 		-o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
 		-exec rm -rf '{}' + \
