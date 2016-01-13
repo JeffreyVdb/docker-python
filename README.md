@@ -94,18 +94,6 @@ docker run -ti vikingco/python:<VERSION> pkg [COMMAND] [ARG...]
 | uninstall-runtime | Uninstall runtime dependencies |
 | help              | Show a help message            |
 
-### User commands
-Used to manage the user at build-time.
-
-Usage:
-```bash
-docker run -ti vikingco/python:<VERSION> user [COMMAND] [ARG...]
-```
-
-| Command | Description                                                              |
-| ------: | ------------------------------------------------------------------------ |
-| set     | Updates the current user. (Arguments: OLD_USERNAME UID GID NEW_USERNAME) |
-
 
 ## Advanced topics
 
