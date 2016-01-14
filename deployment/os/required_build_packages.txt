@@ -8,3 +8,5 @@ patch
 wget
 tar
 git-core
+bzip2
+make
