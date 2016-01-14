@@ -38,6 +38,7 @@ ENV PATH ${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:$PATH
 ARG UID=1000
 ARG GID=1000
 ARG USERNAME=python
+ARG GROUPNAME=python
 RUN set -e \
     && yum install -y sudo \
 	&& yum clean all \
@@ -45,11 +46,23 @@ RUN set -e \
     && echo "Defaults:${USERNAME}    !requiretty" >> /etc/sudoers \
     && echo "Defaults:${USERNAME}    secure_path=\"$PATH\"" >> /etc/sudoers \
     && echo "${USERNAME}    ALL=(ALL)    NOPASSWD:ALL" >> /etc/sudoers \
-    && groupadd -g ${GID} ${USERNAME} \
-    && useradd -u ${UID} -g ${GID} -s /bin/bash ${USERNAME} \
-    && mkdir -p ${ROOT} \
-    && chown -R ${UID}:${GID} ${ROOT}
-USER ${USERNAME}
+    && groupadd -r -g ${GID} ${GROUPNAME} \
+    && useradd -r -m -d ${ROOT} -u ${UID} -g ${GROUPNAME} -s /bin/bash ${USERNAME}
+ENV UID=${UID} \
+    GID=${GID} \
+    USERNAME=${USERNAME} \
+    GROUPNAME=${GROUPNAME}
+
+##########################################
+# Grab gosu for easy step-down from root #
+##########################################
+ARG ARCHITECTURE=amd64
+RUN gpg --keyserver pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+    && curl -o /usr/local/bin/gosu -fSL "https://github.com/tianon/gosu/releases/download/1.7/gosu-${ARCHITECTURE}" \
+	&& curl -o /usr/local/bin/gosu.asc -fSL "https://github.com/tianon/gosu/releases/download/1.7/gosu-${ARCHITECTURE}.asc" \
+	&& gpg --verify /usr/local/bin/gosu.asc \
+	&& rm /usr/local/bin/gosu.asc \
+	&& chmod +x /usr/local/bin/gosu
 
 ##############################
 # Copy deployment into image #
@@ -62,12 +75,11 @@ COPY ${DEPLOYMENT_SRC} ${DEPLOYMENT_DIR}
 RUN set -x \
     && buildPackages=`cat ${DEPLOYMENT_DIR}/${REQUIRED_BUILD_PACKAGES_FILE}` \
     && runtimePackages=`cat ${DEPLOYMENT_DIR}/${REQUIRED_RUNTIME_PACKAGES_FILE}` \
-    && sudo yum install -y ${runtimePackages} ${buildPackages} \
+    && yum install -y ${runtimePackages} ${buildPackages} \
     && wget https://github.com/yyuu/pyenv/tarball/master -O /tmp/pyenv.tar.gz \
     && mkdir -p ${PYENV_ROOT} \
     && tar xvf /tmp/pyenv.tar.gz -C ${PYENV_ROOT} --strip 1 \
     && rm -rf /tmp/pyenv.tar.gz \
-    && sudo touch ./.python-version && sudo chown ${UID}:${GID} ./.python-version \
     && for pyversion in ${PYTHON_VERSIONS}; \
         do \
             pyenv install ${pyversion} \
@@ -79,9 +91,9 @@ RUN set -x \
 		\( -type d -a -name test -o -name tests \) \
 		-o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
 		-exec rm -rf '{}' + \
-    && sudo rm -rf /tmp/* \
-    && sudo yum remove -y ${buildPackages} \
-    && sudo yum clean all
+    && rm -rf /tmp/* \
+    && yum remove -y ${buildPackages} \
+    && yum clean all
 
 ###########################
 # Create source directory #
@@ -96,7 +108,8 @@ COPY ${SCRIPTS_SRC} ${SCRIPTS_DIR}
 ##############################
 # Copy entrypoint into image #
 ##############################
-COPY docker-entrypoint.py /usr/bin/runscript
+COPY docker-entrypoint.sh /entrypoint.sh
+COPY runscript.py /usr/bin/runscript
 
 #######################
 # Set default workdir #
@@ -106,5 +119,5 @@ WORKDIR ${SRC_DIR}
 ###################
 # Set run command #
 ###################
-ENTRYPOINT ["runscript"]
+ENTRYPOINT ["/entrypoint.sh", "runscript"]
 CMD ["help"]

@@ -1,3 +1,2 @@
-openssl
-bzip2
 sqlite
+openssl
