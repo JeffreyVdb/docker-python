@@ -16,7 +16,7 @@ Usage:
 ```bash
 export PYVERSION="2.7.5"
 docker build -t vikingco/python:${PYVERSION} \
-    --build_arg PYTHON_VERSIONS=${PYVERSION} \
+    --build-arg PYTHON_VERSIONS=${PYVERSION} \
     .
 ```
 
@@ -27,7 +27,7 @@ Usage:
 ```bash
 export PYVERSIONS="2.7.5 2.7.10"
 docker build -t vikingco/python:multiple \
-    --build_arg PYTHON_VERSIONS=${PYVERSIONS} \
+    --build-arg PYTHON_VERSIONS=${PYVERSIONS} \
     .
 ```
 
@@ -105,7 +105,7 @@ Usage (e.g. to match the container user with the local user):
 ```bash
 export PYVERSION="2.7.5"
 docker build -t vikingco/python:${PYVERSION} \
-    --build_arg PYTHON_VERSIONS=${PYVERSION} \
+    --build-arg PYTHON_VERSIONS=${PYVERSION} \
     --build-arg UID=$(id -u) \
     --build-arg GID=$(id -g) \
     --build-arg USERNAME=$(whoami) \
