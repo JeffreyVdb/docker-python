@@ -88,9 +88,9 @@ RUN set -x \
         done \
     && pyenv global ${PYTHON_VERSIONS} \
     && find ${PYENV_ROOT} \
-		\( -type d -a -name test -o -name tests \) \
-		-o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
-		-exec rm -rf '{}' + \
+		\( \( -type d -a -name test -o -name tests \) \
+		-o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \) \
+		-prune -exec rm -rf {} + \
     && rm -rf /tmp/* \
     && yum remove -y ${buildPackages} \
     && yum clean all
