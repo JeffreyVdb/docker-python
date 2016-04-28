@@ -48,9 +48,9 @@ commands to your project's Dockerfile.
 
 You will probably still need the following lines
 
-    COPY deployment/requirements.txt ${DEPLOYMENTDIR}/requirements.txt
-    RUN pip install -r ${DEPLOYMENTDIR}/requirements.txt
-    COPY . ${SRCDIR}
+    COPY deployment/requirements.txt ${DEPLOYMENT_DIR}/requirements.txt
+    RUN pip install -r ${DEPLOYMENT_DIR}/requirements.txt
+    COPY . ${SRC_DIR}
 
 
 ## docker-entrypoint.py
@@ -76,8 +76,8 @@ docker run -ti vikingco/python:<VERSION> [COMMAND] [ARG...]
 | help     | Show a help message                       |
 
 ### Package commands
-Used to manage yum package installation for packages defined in ${DEPLOYMENTDIR}/required_runtime_packages.txt and
-${DEPLOYMENTDIR}/required_build_packages.txt.
+Used to manage yum package installation for packages defined in ${DEPLOYMENT_DIR}/required_runtime_packages.txt and
+${DEPLOYMENT_DIR}/required_build_packages.txt.
 
 Usage:
 ```bash
