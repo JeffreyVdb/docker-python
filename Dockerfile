@@ -1,5 +1,16 @@
-FROM centos:7.2.1511
-MAINTAINER technology@vikingco.com
+FROM gcc:7
+LABEL maintainer="technology@unleashed.be"
+
+ARG SU_EXEC_VERSION=v0.2
+
+WORKDIR /tmp/
+RUN set -xe \
+    && git clone --branch=${SU_EXEC_VERSION} --depth=1 https://github.com/ncopa/su-exec \
+    && cd su-exec \
+    && make
+
+FROM centos:7.4.1708
+LABEL maintainer="technology@unleashed.be"
 
 ######################
 # Define root folder #
@@ -39,30 +50,21 @@ ARG UID=1000
 ARG GID=1000
 ARG USERNAME=python
 ARG GROUPNAME=python
-RUN set -e \
-    && yum install -y sudo \
-	&& yum clean all \
-    && echo "Defaults:${USERNAME}    !env_reset" >> /etc/sudoers \
-    && echo "Defaults:${USERNAME}    !requiretty" >> /etc/sudoers \
-    && echo "Defaults:${USERNAME}    secure_path=\"$PATH\"" >> /etc/sudoers \
-    && echo "${USERNAME}    ALL=(ALL)    NOPASSWD:ALL" >> /etc/sudoers \
+
+# Add user
+RUN set -xe \
     && groupadd -r -g ${GID} ${GROUPNAME} \
     && useradd -r -m -d ${ROOT} -u ${UID} -g ${GROUPNAME} -s /bin/bash ${USERNAME}
+
 ENV UID=${UID} \
     GID=${GID} \
     USERNAME=${USERNAME} \
     GROUPNAME=${GROUPNAME}
 
-##########################################
-# Grab gosu for easy step-down from root #
-##########################################
-ARG ARCHITECTURE=amd64
-RUN gpg --keyserver pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
-    && curl -o /usr/local/bin/gosu -fSL "https://github.com/tianon/gosu/releases/download/1.7/gosu-${ARCHITECTURE}" \
-	&& curl -o /usr/local/bin/gosu.asc -fSL "https://github.com/tianon/gosu/releases/download/1.7/gosu-${ARCHITECTURE}.asc" \
-	&& gpg --verify /usr/local/bin/gosu.asc \
-	&& rm /usr/local/bin/gosu.asc \
-	&& chmod +x /usr/local/bin/gosu
+#############################################
+# Grab su-exec for easy step-down from root #
+#############################################
+COPY --from=0 /tmp/su-exec/su-exec /sbin/su-exec
 
 ##############################
 # Copy deployment into image #
@@ -75,24 +77,26 @@ COPY ${DEPLOYMENT_SRC} ${DEPLOYMENT_DIR}
 RUN set -x \
     && buildPackages=`cat ${DEPLOYMENT_DIR}/${REQUIRED_BUILD_PACKAGES_FILE}` \
     && runtimePackages=`cat ${DEPLOYMENT_DIR}/${REQUIRED_RUNTIME_PACKAGES_FILE}` \
-    && yum install -y ${runtimePackages} ${buildPackages} \
+    && yum -y makecache \
+    && yum install -y ${runtimePackages} ${buildPackages} patch wget tar bzip2 make \
     && wget https://github.com/yyuu/pyenv/tarball/master -O /tmp/pyenv.tar.gz \
-    && mkdir -p ${PYENV_ROOT} \
-    && tar xvf /tmp/pyenv.tar.gz -C ${PYENV_ROOT} --strip 1 \
+    && mkdir -p ${PYENV_ROOT} && chown -R ${UID}:${GID} ${PYENV_ROOT} \
+    && su-exec ${USERNAME} tar xvf /tmp/pyenv.tar.gz -C ${PYENV_ROOT} --strip 1 \
     && rm -rf /tmp/pyenv.tar.gz \
+    && cd ${ROOT} \
     && for pyversion in ${PYTHON_VERSIONS}; \
         do \
-            pyenv install ${pyversion} \
-            && pyenv local ${pyversion} \
-            && pip install -r ${DEPLOYMENT_DIR}/${PYTHON_REQUIREMENTS_FILE}; \
+            su-exec ${USERNAME} pyenv install ${pyversion} \
+            && su-exec ${USERNAME} pyenv local ${pyversion} \
+            && su-exec ${USERNAME} pip install -r ${DEPLOYMENT_DIR}/${PYTHON_REQUIREMENTS_FILE}; \
         done \
-    && pyenv global ${PYTHON_VERSIONS} \
+    && su-exec ${USERNAME} pyenv global ${PYTHON_VERSIONS} \
     && find ${PYENV_ROOT} \
 		\( \( -type d -a -name test -o -name tests \) \
 		-o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \) \
 		-prune -exec rm -rf {} + \
     && rm -rf /tmp/* \
-    && yum remove -y ${buildPackages} \
+    && yum remove -y ${buildPackages} -- -systemd \
     && yum clean all
 
 ###########################
@@ -119,5 +123,5 @@ WORKDIR ${SRC_DIR}
 ###################
 # Set run command #
 ###################
-ENTRYPOINT ["/entrypoint.sh", "runscript"]
+ENTRYPOINT ["/entrypoint.sh", "/usr/bin/runscript"]
 CMD ["help"]

@@ -1,22 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
-
 import sys
 import os
 import pwd
-
 import subprocess
-
-
-def get_username():
-    return pwd.getpwuid( os.getuid() )[ 0 ]
-
-# print('UID: %s' % os.getuid())
-# print('Current User: %s' % get_username())
 
 from tabulate import tabulate
 
+if sys.version_info[0] == 2:
+    from codecs import open  # pylint: disable=redefined-builtin
 
 SCRIPTSDIR = os.getenv('SCRIPTS_DIR', './scripts')
 HELPKEY = 'help'
@@ -24,16 +17,18 @@ COMMANDPREFIX = 'docker run [OPTIONS] IMAGE'
 RESERVEDNAMES = []
 SCRIPTEXTENSIONS = ['.sh', '.py']
 
+echo = print # noqa
 
-def _p(txt):
-    print(txt)
+
+def get_username():
+    return pwd.getpwuid(os.getuid())[0]
 
 
 def get_caption(path, name):
     result = None
     captionfile = os.path.join(path, '%s.txt' % name)
     if name and os.path.exists(captionfile):
-        with open(captionfile, 'rb') as fh:
+        with open(captionfile, mode='r', encoding='utf8') as fh:
             result = fh.readline()  # Only take first line!
     return result.strip() if result else ''
 
@@ -61,10 +56,12 @@ def get_script(path, name):
             candidates.append(f)
 
     if len(candidates) > 1:
-        raise Exception('Script ambiguity: two scripts in the same directory have the same basename: %r' % candidates)
-    elif len(candidates) == 0:
-        return None
-    return candidates[0]
+        raise Exception('Script ambiguity: two scripts in the same directory '
+                        'have the same basename: {}'.format(candidates))
+    elif len(candidates) == 1:
+        return candidates[0]
+
+    return None
 
 
 def help(path, cmdpath):
@@ -90,12 +87,12 @@ def help(path, cmdpath):
     # Sort commands
     descriptions = sorted(descriptions, key=lambda tup: tup[0])
 
-    _p('')
-    _p('Usage: %s [COMMAND] [ARG...]' % build_command(cmdpath))
-    _p('')
-    _p('Valid options for [COMMAND]:')
-    _p('')
-    _p(tabulate(descriptions, headers))
+    echo('')
+    echo('Usage: {} [COMMAND] [ARG...]'.format(build_command(cmdpath)))
+    echo('')
+    echo('Valid options for [COMMAND]:')
+    echo('')
+    echo(tabulate(descriptions, headers))
 
 
 def run_command(command):
