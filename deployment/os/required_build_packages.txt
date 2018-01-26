@@ -4,9 +4,4 @@ bzip2-devel
 readline-devel
 sqlite-devel
 openssl-devel
-patch
-wget
-tar
 git-core
-bzip2
-make

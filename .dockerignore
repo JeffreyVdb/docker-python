@@ -1,7 +1,23 @@
+# MacOS
 .DS_Store
+
+# Docker files
 .dockerignore
+
+# SCM
 .git/
 .gitignore
+
+# Docs
 README.rst
+README.md
+
+# Python generated files
 *.pyc
 __pycache__
+
+# Pyenv
+.python-version
+
+# CI
+circle.yml
