@@ -1,3 +1,2 @@
 #!/usr/bin/env bash
-
-/usr/bin/env bash "$@"
+exec /usr/bin/env bash "$@"
