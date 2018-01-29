@@ -88,7 +88,9 @@ RUN set -x \
         do \
             su-exec ${USERNAME} pyenv install ${pyversion} \
             && su-exec ${USERNAME} pyenv local ${pyversion} \
-            && su-exec ${USERNAME} pip install -r ${DEPLOYMENT_DIR}/${PYTHON_REQUIREMENTS_FILE}; \
+            && su-exec ${USERNAME} pip install --upgrade pip \
+            && su-exec ${USERNAME} pip install -r ${DEPLOYMENT_DIR}/${PYTHON_REQUIREMENTS_FILE} \
+            && su-exec ${USERNAME} pip install ipython; \
         done \
     && su-exec ${USERNAME} pyenv global ${PYTHON_VERSIONS} \
     && find ${PYENV_ROOT} \
